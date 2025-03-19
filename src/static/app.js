@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const activitySelect = document.getElementById("activity");
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
 
   // Function to fetch activities from API
   async function fetchActivities() {
@@ -20,14 +21,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        const participantsList = details.participants
+          .map((participant, index) => `<li>${index + 1}. <a href="mailto:${participant}">${participant}</a></li>`)
+          .join("");
+
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p><strong>Participants:</strong> ${
+            details.participants.length > 0
+              ? `<button class="toggle-participants">Show Participants</button>
+                 <ul class="participants-list hidden">${participantsList}</ul>`
+              : "No participants yet"
+          }</p>
         `;
 
         activitiesList.appendChild(activityCard);
+
+        // Add event listener for expand/collapse
+        const toggleButton = activityCard.querySelector(".toggle-participants");
+        if (toggleButton) {
+          const participantsUl = activityCard.querySelector(".participants-list");
+          toggleButton.addEventListener("click", () => {
+            participantsUl.classList.toggle("hidden");
+            toggleButton.textContent = participantsUl.classList.contains("hidden")
+              ? "Show Participants"
+              : "Hide Participants";
+          });
+        }
 
         // Add option to select dropdown
         const option = document.createElement("option");
@@ -79,6 +102,17 @@ document.addEventListener("DOMContentLoaded", () => {
       messageDiv.classList.remove("hidden");
       console.error("Error signing up:", error);
     }
+  });
+
+  darkModeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    document.querySelectorAll("header, section, .activity-card, button, footer").forEach(element => {
+      element.classList.toggle("dark-mode");
+    });
+
+    const darkModeIcon = document.getElementById("dark-mode-icon");
+    darkModeIcon.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+    darkModeToggle.title = document.body.classList.contains("dark-mode") ? "Light Mode" : "Dark Mode";
   });
 
   // Initialize app
