@@ -20,14 +20,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        const participantsList = details.participants
+          .map((participant, index) => `<li>${index + 1}. <a href="mailto:${participant}">${participant}</a></li>`)
+          .join("");
+
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p><strong>Participants:</strong> ${
+            details.participants.length > 0
+              ? `<button class="toggle-participants">Show Participants</button>
+                 <ul class="participants-list hidden">${participantsList}</ul>`
+              : "No participants yet"
+          }</p>
         `;
 
         activitiesList.appendChild(activityCard);
+
+        // Add event listener for expand/collapse
+        const toggleButton = activityCard.querySelector(".toggle-participants");
+        if (toggleButton) {
+          const participantsUl = activityCard.querySelector(".participants-list");
+          toggleButton.addEventListener("click", () => {
+            participantsUl.classList.toggle("hidden");
+            toggleButton.textContent = participantsUl.classList.contains("hidden")
+              ? "Show Participants"
+              : "Hide Participants";
+          });
+        }
 
         // Add option to select dropdown
         const option = document.createElement("option");
